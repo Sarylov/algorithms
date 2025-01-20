@@ -6,23 +6,23 @@ function _sum(a, b) {
 
 function spy(f) {
     // здесь код
-    const data = {
+
+    let data = {
         calls: 0,
         args: [],
         results: []
     }
 
-    function spyWrapper(...args) {
+    function spyWrapper(...props) {
         data.calls += 1
-        data.args.push(args)
-        const result = f(...args)
-        data.results.push(result)
+        data.args.push(props)
+        const res = f(...props)
+        data.results.push(res)
+        return res
     }
 
     spyWrapper.data = data
-
     return spyWrapper
-
 }
 
 const sum = spy(_sum)

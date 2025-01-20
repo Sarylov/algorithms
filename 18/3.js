@@ -1,22 +1,42 @@
-async function get(url) {
-    let res
-    const arr = new Array(5).fill((url) => { return fetch(url) })
 
-    for (f of arr) {
-        console.log("start: " + new Date())
-        try {
-            res = await f(url)
-            if (res.status === 200) break
-
-        } catch (error) {
-            res = new Error(error)
-        }
-        console.log("end: " + new Date())
+function randomUrl() {
+    const urls = {
+        1: "error",
+        2: "https://jsonplaceholder.typicode.com/todos/1"
     }
 
-    return res
+    const urlNumber = Math.floor(Math.random() * 3)
+    return urls[urlNumber]
 }
 
-const url = "https://jsonplaceholder.typicode.com/todo"
+async function get() {
+    let tryCounter = 0
+    let start = 0
 
-console.log(get(url).then(res => console.log(res)).catch(err => console.error(err)))
+    function query() {
+        const random = randomUrl()
+        return fetch(random)
+    }
+
+    return new Promise((res, rej) => {
+        function tryFetch() {
+            start = new Date().getSeconds()
+            query()
+                .then((localRes) => res(localRes))
+                .catch((err) => {
+                    tryCounter += 1
+                    if (tryCounter === 5) rej(err)
+                    else setTimeout(() => tryFetch(), 1000)
+                }).finally(() => {
+                    console.log("попытка: ", tryCounter, "начло: ", start, "конец: ", new Date().getSeconds())
+                })
+        }
+
+        tryFetch()
+    })
+}
+
+
+
+
+console.log(get().then(res => console.log(res)).catch(err => console.error(err)))
